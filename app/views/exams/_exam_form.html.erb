@@ -1,0 +1,37 @@
+				
+<% if @subjects.empty? %>
+ <h4 align="center">No subject Found </h4>
+<% else %>
+
+<%=form_for @exam_group , url:{action: 'exam_group_create',id:@exam_group.id}, method: :post do |f| %>  
+<table class="table table-hover" style="width:700px">
+  <tr class="tr-head">
+    <td >Subjects</td>
+    <td >Max marks</td>
+    <td >Min marks</td>
+    <td >start time</td>
+    <td>end time</td>
+    <td >Do not create</td>
+  </tr> 
+
+<% @subjects.each do |subject| %>
+<%= f.fields_for  :exams do |exam| %>
+    <tr>
+     
+      <td class="col-1"><%= subject.name %></td>
+      <%= exam.hidden_field :subject_id, value: subject.id%>
+      <td class="col-1"><%= exam.text_field :maximum_marks%></td>
+      <td class="col-1"><%= exam.text_field :minimum_marks%></td>
+      <td class="col-1"><%= exam.text_field :start_time%></td>
+      <td class="col-1"><%= exam.text_field :end_time%></td>
+      
+
+    </tr>
+<%end%>
+  <% end %>
+
+ <tr class="tr-head"><td colspan="6">
+<%= f.submit 'create', class: "btn btn-primary" %></td></tr>
+</table>
+<% end %>
+<%end%>
