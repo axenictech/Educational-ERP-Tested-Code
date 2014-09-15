@@ -46,8 +46,11 @@ class StudentsController < ApplicationController
   
   def update
     @student=Student.find(params[:id])
-    @student.update(student_params)
+    if @student.update(student_params)
     redirect_to students_profile_path(@student)
+    else
+      render 'edit'
+    end
   end
 
   def update_immediate_contact
@@ -88,12 +91,12 @@ class StudentsController < ApplicationController
   def search_ajax
     unless params[:search].empty?
       if params[:student][:status].eql? "present"
-        @students=Student.where("first_name like '#{params[:search]}%' 
-                                  OR last_name like '#{params[:search]}%'")
+        @students=Student.where("concat_ws(' ',first_name,last_name)like '#{params[:search]}%' 
+        OR concat_ws(' ',last_name,first_name)like '#{params[:search]}%' OR admission_no like '#{params[:search]}%'")
       end  
       if params[:student][:status].eql? "former"
-        @students=ArchivedStudent.where("first_name like '#{params[:search]}%' 
-                                      OR last_name like '#{params[:search]}%'")
+        @students=ArchivedStudent.where("concat_ws(' ',first_name,last_name)like '#{params[:search]}%' 
+        OR concat_ws(' ',last_name,first_name)like '#{params[:search]}%' OR admission_no like '#{params[:search]}%'")
       end 
     end 
   end
@@ -175,24 +178,24 @@ class StudentsController < ApplicationController
       @student_subject_delete= StudentSubject.where(subject_id: @subject.id)
       students=[]
       students= params[:students]
-    if students.present?
-       unless @student_subject_delete.empty?
-       @student_subject_delete.each  do |student_sub|
-           student_sub.destroy
+      if students.present?
+         unless @student_subject_delete.empty?
+         @student_subject_delete.each  do |student_sub|
+             student_sub.destroy
+            end
           end
-        end
-         students.each  do |student|
-            @student_subject= StudentSubject.new(batch_id: @batch.id,
-                            subject_id: @subject.id,student_id: student)
-            @student_subject.save
-          end
-    else
-       @student_subject_delete.each  do |student_sub|
-           student_sub.destroy
-          end
-    end
-     flash[:notice] = 'Elective subject assigned to student successfully!'
-      redirect_to students_elective_path(@subject)
+           students.each  do |student|
+              @student_subject= StudentSubject.new(batch_id: @batch.id,
+                              subject_id: @subject.id,student_id: student)
+              @student_subject.save
+            end
+      else
+         @student_subject_delete.each  do |student_sub|
+             student_sub.destroy
+            end
+      end
+       flash[:notice] = "Elective subject #{@subject.name} assigned to students successfully"
+        redirect_to students_elective_path(@subject)
   end
 
   def email

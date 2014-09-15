@@ -2,7 +2,7 @@
   <h1>School News</h1>
   <h3>Latest announcements</h3>
   <div id="app-back-button">
-  <%= link_to image_tag("buttons/back.png",:border => 0), "" %>
+  <%= link_to image_tag("buttons/back.png",:border => 0), :back  %>
   </div>
  <div><%= image_tag("underline.jpg",width: "100%")%></div>
 </div>
@@ -22,12 +22,12 @@
 <%= 'News' %>
 </div>
 
-<% unless flash[:notice].nil? %><p class="flash-msg"> <%= flash[:notice] %> </p><% end %>
- 
+<% unless flash[:notice].nil? %>
+  <div class="alert alert-success"> <%= flash[:notice] %> </div><% end %> 
 <div align="center">
 	<%= form_for :newscast, url:{action:'select'},method: :get,html:{id: 'newscast_form'},remote:true do |f| %>
 	<%= f.label :Search_news %>
-  <%= f.text_field :title,{onkeypress:"$('#newscast_form').submit();"}%>
+  <%= f.text_field :title,{oninput:"$('#newscast_form').submit();"}%>
 <% end %>
 </div>
 

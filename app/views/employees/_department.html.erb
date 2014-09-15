@@ -1,5 +1,25 @@
+<% unless flash[:notice2].nil? %> <p class="flash-msg"> <%= flash[:notice2] %> </p><% end %>
+<div align="center">
+<ul class="errors2"></ul>
+<%= form_for @employee_department_new, url:{action:'add_department'},remote:true do |c|%>
 
+		<div><%= c.label :Name%>
+		<%= c.text_field :name%></div>
+		<div><%= c.label :code%>
+		<%= c.text_field :code%></div>
+		<div><%= c.label :Status%> <%= c.radio_button "status", "true", checked: "checked" %> <%=c.label :Active%> 
+		<%= c.radio_button "status", "false"%> <%=c.label :Inactive%>
+		</div>
 
+		<div>
+			<%= c.submit 'Create'%>
+		</div>
+	<%end%>
+
+</div>
+<% if @departments1.empty? and @departments2.empty?%>
+<h3 align="center">No records</h3>
+<%else%>
 <table align="center" class="table table-hover table-bordered" style="width:800px">
 
 	<tr class="tr-head"><th colspan="3">Active Department</th>
@@ -9,7 +29,7 @@
 			<tr>
 			<td class="col-3"><%=c.name%> (<%=c.code%>)</td>
 			<td><%= link_to 'edit',employees_edit_department_path(c),remote:true%></td>
-			<td><%= link_to 'delete' ,''%></td>	 
+			<td><%= link_to 'delete' ,employees_destroy_department_path(c),remote:true,method: :delete, data: { confirm: "Are you sure to delete?"}%></td>	 
 			</tr>
 		<%end%>
 	 </tbody>
@@ -24,10 +44,10 @@
 			<tr>
 			<td class="col-3"><%=c.name%> (<%=c.code%>)</td>
 			<td><%= link_to 'edit',employees_edit_department_path(c),remote:true%></td>
-			<td><%= link_to 'delete' ,''%></td>	
+			<td><%= link_to 'delete' ,employees_destroy_department_path(c),remote:true,method: :delete, data: { confirm: "Are you sure to delete?"}%></td>	
 			</tr>
 		<%end%>
 	 </tbody>
 </table>
-
+<%end%>
 

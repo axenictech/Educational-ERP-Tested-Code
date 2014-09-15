@@ -10,8 +10,8 @@
 <div id="page-yield">
   
   <div class="box">
-   <% unless flash[:notice].nil? %>
-    <div align="center" class="alert alert-success"> <%= flash[:notice] %> </div>
+   <% unless flash[:notice_batch_group].nil? %>
+    <div align="center" class="alert alert-danger"> <%= flash[:notice_batch_group] %> </div>
   <% end %>
         <div class="bread_crumb">
         <%= link_to 'Courses', courses_path %> &raquo;
@@ -37,7 +37,7 @@
 				Select: <%= link_to "All",courses_assign_all_path(@course),remote:true%>
 				  <%= link_to "None",courses_remove_all_path(@course),remote:true %>
 			<p id="batch_view"><%= render 'all_batch' %></p>
-        <td></tr>
+        </td></tr>
         <tr>
         <td colspan="2"><%=c.submit 'Submit', class: "btn btn-primary"%></td>
         </tr>
