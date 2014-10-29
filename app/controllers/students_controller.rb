@@ -137,6 +137,7 @@ class StudentsController < ApplicationController
     @immediate_contact=Guardian.find(@student.immediate_contact)
     @student_previous_data=StudentPreviousData.find_by_student_id(@student.id)
     @student_previous_subject_marks=StudentPreviousSubjectMark.where(student_id:@student.id)
+    @general_setting=GeneralSetting.first
     render 'student_profile',layout:false
   end
 
@@ -152,6 +153,7 @@ class StudentsController < ApplicationController
     @immediate_contact=Guardian.find(@student.immediate_contact)
     @student_previous_data=StudentPreviousData.find_by_student_id(@student.student_id)
     @student_previous_subject_marks=StudentPreviousSubjectMark.where(student_id:@student.student_id)
+    @general_setting=GeneralSetting.first
     render 'student_profile',layout:false
   end
 
@@ -176,6 +178,7 @@ class StudentsController < ApplicationController
     @exam_group=ExamGroup.find(params[:exam_group_id])
     @student=Student.find(params[:student_id])
     @batch=@exam_group.batch
+    @general_setting=GeneralSetting.first
     render 'student_exam_report',layout:false
   end
 
@@ -191,6 +194,7 @@ class StudentsController < ApplicationController
     @student=Student.find(params[:student_id])
     @batch=@subject.batch
     @exam_groups=@batch.exam_groups.all
+    @general_setting=GeneralSetting.first
     render 'academic_report',layout:false
   end
 
@@ -206,6 +210,7 @@ class StudentsController < ApplicationController
     @batch=@student.batch
     @exam_groups=@batch.exam_groups.all
     @subjects=@batch.subjects.all
+    @general_setting=GeneralSetting.first
     render 'student_final_report',layout:false
   end
 
@@ -219,6 +224,7 @@ class StudentsController < ApplicationController
     @student=Student.find(params[:student_id])
     @batch=@student.batch
     @exam_groups=@batch.exam_groups.all
+    @general_setting=GeneralSetting.first
     render 'student_transcript_report',layout:false
   end
 
@@ -226,6 +232,7 @@ class StudentsController < ApplicationController
     @student=ArchivedStudent.find(params[:student_id])
     @batch=@student.batch
     @exam_groups=@batch.exam_groups.all
+    @general_setting=GeneralSetting.first
     render 'archived_student_transcript_report',layout:false
   end
 
@@ -237,11 +244,12 @@ class StudentsController < ApplicationController
 
   def genrate_report
     @student=Student.find(params[:report][:student_id])
+    @subject_id=params[:report][:subject_id]
     @start_date=params[:report][:start_date]
     @end_date=params[:report][:end_date]
-    @time_table_entry=TimeTableEntry.find_by_subject_id_and_batch_id(params[:report][:subject_id],@student.batch.id)
-    @weekdays=@student.batch.weekdays.all
-  end
+    @batch_events=@student.batch.batch_events.all
+    @time_table_entries=TimeTableEntry.where(subject_id:@subject_id,batch_id:@student.batch.id)
+   end
 
   def advanced_search
     @courses=Course.all
@@ -355,6 +363,7 @@ class StudentsController < ApplicationController
   def advanced_search_result
     @students=params[:students]
     @search=params[:search]
+    @general_setting=GeneralSetting.first
     render 'advanced_search_result',layout:false
   end
 
@@ -441,6 +450,7 @@ class StudentsController < ApplicationController
     @immediate_contact=Guardian.find(@student.immediate_contact)
     @father = Guardian.find_by_student_id_and_relation(@student.id,'father')
     @mother = Guardian.find_by_student_id_and_relation(@student.id,'mother')
+    @general_setting=GeneralSetting.first
     render 'generate_tc',layout:false
   end
 
@@ -490,17 +500,14 @@ class StudentsController < ApplicationController
 
   private
   def student_params
-      params.require(:student).permit(:admission_no,:class_roll_no,:admission_date,:first_name,
-                                    :middle_name, :last_name,:batch_id,:date_of_birth,:gender,:blood_group,:birth_place, 
-                                    :nationality_id ,:language,:category_id,:religion,:address_line1,:address_line2,:city,
-                                    :state,:pin_code,:country_id,:phone1,:phone2,:email,:immediate_contact,:status_description )
+      params.require(:student).permit!
   end
 
   def previous_data_params
-    params.require(:student_previous_data).permit(:student_id,:institution,:year,:course,:total_mark)
+    params.require(:student_previous_data).permit!
   end
 
   def params_subject
-    params.require(:student_previous_subject_mark).permit(:student_id,:subject,:mark)
+    params.require(:student_previous_subject_mark).permit!
   end
 end

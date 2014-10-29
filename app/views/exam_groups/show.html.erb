@@ -25,9 +25,7 @@
     &raquo;
     Exams
   </div></div><br/>
-<% unless flash[:notice].nil? %>
-    <div align="center" class="alert alert-success" style="width:100%"> <%= flash[:notice] %> </div>
-  <% end %>
+
 <% if @exam_groups.empty? %>
  <h4 align="center">No Record Found </h4>
    <% else %>
@@ -41,7 +39,7 @@
         <tr>
         <td class="col-2"><%= link_to eg.name ,exam_groups_exams_path(eg) %></td>
         <% unless eg.result_published? %>
-        <td><%= link_to 'delete',eg,method: :delete,
+        <td><%= link_to 'Delete',eg,method: :delete,
         data:{confirm:"Are you sure to delete ExamGroup: #{eg.name}"}%></td>
         <%else%>
         <td>delete</td>

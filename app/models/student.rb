@@ -7,6 +7,9 @@ class Student < ActiveRecord::Base
   has_one    :student_previous_data
   has_many   :student_previous_subject_marks
   has_many   :guardians
+  has_attached_file :image
+  validates_attachment_content_type :image, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
+
   # has_many   :finance_transactions, dependent: :destroy
   # has_many   :fee_category ,:class_name => "FinanceFeeCategory", dependent: :destroy
 
@@ -42,14 +45,16 @@ class Student < ActiveRecord::Base
   validates :pin_code, numericality: { only_integer: true },
                  length:{minimum:6,maximum:6},allow_blank: true
   validates :phone2 ,numericality: { only_integer: true },
-              length:{minimum:10,maximum:10},allow_blank: true
+              length:{minimum:6,maximum:11},allow_blank: true
+  validates :phone1 ,numericality: { only_integer: true},
+              length:{minimum:6,maximum:11},allow_blank: true
   validates :email,format:{with: /\A[a-zA-Z0-9._-]+@([a-zA-Z0-9]+\.)+[a-zA-Z]{2,4}+\z/},allow_blank: true
   after_save :create_user_account
 
   def archived_student
     student_attributes = self.attributes   
     student_attributes["student_id"]= self.id
-    archived_student = ArchivedStudent.new(student_attributes)
+    archived_student = ArchivedStudent.create(student_attributes)
   end
 
   private

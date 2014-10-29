@@ -14,12 +14,16 @@ class ExamScore < ActiveRecord::Base
   end
 
   def marks_cant_be_greater_than_maximum_marks 
-  	if  marks.present? and marks > self.exam.maximum_marks 
-			errors.add(:marks, "cannot be greater than maximum marks");
-		end	
+    unless self.exam.exam_group.exam_type=="Grades"
+    	if  marks.present? and marks > self.exam.maximum_marks 
+  			errors.add(:marks, "cannot be greater than maximum marks");
+  		end	
+    end
   end
+
 
   def calculate_percentage
     percentage = self.marks.to_f * 100 / self.exam.maximum_marks.to_f
   end
+
 end

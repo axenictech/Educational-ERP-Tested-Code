@@ -10,9 +10,7 @@
 </div><br/><br/>
 
 <div id="page-yield">
-  <% unless flash[:notice].nil? %>
-    <p class="flash-msg"> <%= flash[:notice] %> </p>
-  <% end %>
+  
 
 <table align="center" class="table table-hover" style="width:1000px">
 <%= form_for :user, url:{action:'search',format:@employee.id}, method: :get,remote:true,html:{id: "user_form"} do |f|%>
@@ -20,7 +18,7 @@
 
          
         <tr>
-          <td><%= 'selected_manager :' +@reporting_manager.first_name %></td><td class="col-3"><div class="col-offset-md-3" id="name_emp"></div></td>
+          <td><%= 'selected_manager :' +@reporting_manager.to_s %></td><td class="col-3"><div class="col-offset-md-3" id="name_emp"></div></td>
          </tr> 
         
         <tr>

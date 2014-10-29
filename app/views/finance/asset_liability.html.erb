@@ -3,7 +3,7 @@
   <h1>Finance</h1>
   <h3>Asset Liability Management</h3>
   <div id="app-back-button">
-    <%= link_to image_tag("buttons/back.png",:border => 0), '/finance' %>
+    <%= link_to image_tag("buttons/back.png",:border => 0),:back %>
   </div>
     <div><%= image_tag("underline.jpg",width: "100%")%></div>
 </div>
@@ -13,13 +13,13 @@
   <div id="box">
 
       <div class="link-box">
-        <div class="link-heading"><%= link_to "Asset", finance_new_asset_path %></div>
+        <div class="link-heading"><%= link_to "Asset",'asset'%></div>
         <div class="link-descr">Manages Asset</div>
       </div>
 
     
       <div class="link-box">
-        <div class="link-heading"><%= link_to "Liability",finance_new_liability_path %></div>
+        <div class="link-heading"><%= link_to "Liability",'liability'%></div>
         <div class="link-descr">Manages Liability</div>
       </div>
 

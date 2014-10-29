@@ -332,7 +332,10 @@ class EmployeesController < ApplicationController
   end
 
   def edit_privilege
+    @user = User.find(params[:format])
     @employee=Employee.find(params[:format])
+    @privilege_tags=PrivilegeTag.all
+
   end
 
   def update_privilege
@@ -374,33 +377,65 @@ class EmployeesController < ApplicationController
 
   def change_reporting_manager
      @employee=Employee.find(params[:format])
-      @reporting_manager = Employee.find(@employee.reporting_manager_id) unless @employee.reporting_manager_id.nil?     
+     @reporting_manager = Employee.find(@employee.reporting_manager_id).first_name unless @employee.reporting_manager_id.nil?
   end
 
   def profile
      @employee=Employee.find(params[:format])
-     @reporting_manager = Employee.find(@employee.reporting_manager_id) unless @employee.reporting_manager_id.nil?
+     @reporting_manager = Employee.find(@employee.reporting_manager_id).first_name unless @employee.reporting_manager_id.nil?
   end
 
   def edit_profile
-       @employee=Employee.find(params[:format])
+        @employee=Employee.find(params[:format])
+      
   end
 
   def update_profile
        @employee=Employee.find(params[:format])
-       @employee.update(employee_params)
-       redirect_to employees_profile_path(@employee)
+       if @employee.update(employee_params)
+          redirect_to employees_profile_path(@employee)
+       else
+          render 'edit_profile'
+       end   
   end
 
+  def update_edit_profile
+       @employee=Employee.find(params[:format])
+       if @employee.update(employee_params)
+          redirect_to employees_profile_path(@employee)
+       else
+          render 'edit_personal_profile'
+       end   
+  end
+
+
+  def  update_edit_address_profile
+       @employee=Employee.find(params[:format])
+       if @employee.update(employee_params)
+          redirect_to employees_profile_path(@employee)
+       else
+          render 'edit_address_profile'
+       end   
+  end
   
+  
+  def  update_edit_contact_profile
+       @employee=Employee.find(params[:format])
+       if @employee.update(employee_params)
+          redirect_to employees_profile_path(@employee)
+       else
+          render 'edit_contact_profile'
+       end   
+  end
+
   def employee_management
     
   end
 
   def subject_assignment
 
-    
   end
+  
   def assign_subject
     @batch=Batch.find(params[:subject_assignment][:id])
    @subject=@batch.subjects.all
@@ -414,6 +449,7 @@ class EmployeesController < ApplicationController
     @department=EmployeeDepartment.find(params[:subject_assignment][:id])
      @employee=@department.employees.all
      @subject=Subject.find(params[:format])
+     @assigned_employees = EmployeeSubject.where(subject_id:@subject.id)
    end
 
    def assign_employee
@@ -551,10 +587,74 @@ class EmployeesController < ApplicationController
       end
     end
 
+    if @status=params[:search][:status]
+
+      if params[:search][:status]=="all"
+        @employee1=Employee.where(conditions)
+        @employee2=ArchivedEmployee.where(conditions)
+        @employees=@employee1+@employee2  
+      elsif params[:search][:status]=="present"
+        @employees=Employee.where(conditions)
+      else
+        @employees=ArchivedEmployee.where(conditions)
+      end
+    end
+
+    @search = ''
+      @search += " Name: " + params[:search][:name].to_s+", " unless params[:search][:name].empty?
+        
+        if  params[:search][:gender] == 'All'
+          @search += " Gender: All"+", "
+        else
+          @search += " Gender: "+params[:search][:gender].to_s+", " unless params[:search][:gender].empty?
+        end
+
+        @search += " Blood group: " + params[:search][:blood_group].to_s+", " unless params[:search][:blood_group].empty?
+        @search += " Marital Status: " + params[:search][:marital_status].to_s+", " unless params[:search][:marital_status].empty?
+     
+
+      if params[:search][:country_id].present?
+         @search += " Country: " + Country.find(params[:search][:country_id]).name+", "
+      end
+
+        if params[:search][:employee_category_id].present?     
+           @search += " Category: " + EmployeeCategory.find(params[:search][:employee_category_id]).name+", "
+        end
+     
+      @search += "Joining date:" +  params[:search][:joining_date].to_s+", " unless  params[:search][:joining_date].empty?
+     
+       if params[:search][:employee_department_id].present?     
+           @search += " Department: " + EmployeeDepartment.find(params[:search][:employee_department_id]).name+", "
+        end
+
+
+       if params[:search][:employee_position_id].present?     
+           @search += " Position: " + EmployeePosition.find(params[:search][:employee_position_id]).name+", "
+        end
+
+
+       if params[:search][:employee_grade_id].present?     
+           @search += " Grade: " + EmployeeGrade.find(params[:search][:employee_grade_id]).name+", "
+        end
+
+      @search += " Date of birth: " +  params[:search][:date_of_birth].to_s+", " unless  params[:search][:date_of_birth].empty?
       
-    @employees=Employee.where(conditions)           
+      if params[:search][:status]=="present"
+        @search += "Staus: Present student"
+      elsif params[:search][:status]=="former"
+        @search += "Staus: Former student"
+      else
+        @search += " Status: All student"
+      end
   end
 
+  def advance_search_result_pdf
+    @employees=params[:employees]
+    @search=params[:search]
+    @general_setting=GeneralSetting.first
+    render 'advance_search_result_pdf',layout:false
+    
+  end
 
   def payslip
     
@@ -625,12 +725,23 @@ end
 
   def genral_profile
    @employee=Employee.find(params[:format])
-   @reporting_manager = Employee.find(@employee.reporting_manager_id) unless @employee.reporting_manager_id.nil?
+   @reporting_manager = Employee.find(@employee.reporting_manager_id).first_name unless @employee.reporting_manager_id.nil?
   end
 
+   def genral_profile_archived
+     @employee=ArchivedEmployee.find(params[:format])
+   end
 
   def personal_profile
    @employee=Employee.find(params[:format])
+   @country = Country.find(@employee.country_id).name unless @employee.country_id.nil?
+
+  end
+
+  def personal_profile_archived
+   @employee=ArchivedEmployee.find(params[:format])
+   @country = Country.find(@employee.country_id).name unless @employee.country_id.nil?
+
   end
 
   def address_profile
@@ -640,15 +751,32 @@ end
 
   end
 
+
+  def address_profile_archived
+   @employee=ArchivedEmployee.find(params[:format])
+   @home_country = Country.find(@employee.home_country_id).name unless @employee.home_country_id.nil?
+   @office_country = Country.find(@employee.office_country_id).name unless @employee.home_country_id.nil?
+
+  end
+
   def contact_profile
    @employee=Employee.find(params[:format])
   end
 
+   def contact_profile_archived
+    @employee=ArchivedEmployee.find(params[:format])
+  end
+
   def bank_info
    @employee=Employee.find(params[:format])
+   @bank_details=EmployeeBankDetail.where(employee_id:@employee.id)
+  
+  end
+
+   def bank_info_archived
+   @employee=ArchivedEmployee.find(params[:format])
    @bank_details = EmployeeBankDetail.where(employee_id:@employee.id)
-   p "supriyaaaaaaaaaaaaaaaaaa"
-   p @bank_details
+  
   end
 
   def emp_payroll
@@ -666,8 +794,7 @@ end
 
    def create_archived_employee
       @employee=Employee.find(params[:format])
-      p "employeeeeeeeeeeeeee"
-      p @employee
+     
       if request.post?
           EmployeeSubject.destroy_all(:employee_id=>@employee.id)
           @archived_employee=@employee.archived_employee
@@ -675,9 +802,13 @@ end
           p @archived_employee
           @employee.destroy
           flash[:notice] = "Employee #{@employee.first_name} is Archived Successfully" 
-         redirect_to @employee
+          redirect_to employees_archived_employee_profile_path(@employee)
 
     end
+  end
+
+  def archived_employee_profile
+      @employee=ArchivedEmployee.find(params[:format])
   end
 
   def delete_employee
@@ -685,53 +816,80 @@ end
         @employee.destroy
         flash[:notice] = "All Records of #{@employee.first_name} is Deleted Successfully" 
         redirect_to @employee
-        p "Successfully Deleted............."
+       
   end
 
   def employee_profile
     @employee=Employee.find(params[:employee_id])
-    @reporting_manager = Employee.find(@employee.reporting_manager_id) unless @employee.reporting_manager_id.nil?
+    @reporting_manager = Employee.find(@employee.reporting_manager_id).first_name unless @employee.reporting_manager_id.nil?
 
     render 'employee_profile',layout:false
   end
 
+  def personal_profile_pdf
+      @employee=Employee.find(params[:employee_id])
+      @country = Country.find(@employee.country_id).name unless @employee.country_id.nil?
 
+      render 'personal_profile_pdf',layout:false
+  end
+
+  def address_profile_pdf
+       @employee=Employee.find(params[:employee_id])
+       @home_country = Country.find(@employee.home_country_id).name unless @employee.home_country_id.nil?
+       @office_country = Country.find(@employee.office_country_id).name unless @employee.home_country_id.nil?
+       render 'address_profile_pdf',layout:false
+  end
+
+  def contact_profile_pdf
+       @employee=Employee.find(params[:employee_id])
+       render 'contact_profile_pdf',layout:false
+  end
+
+   def bank_info_pdf
+       @employee=Employee.find(params[:employee_id])
+       @bank_details = EmployeeBankDetail.where(employee_id:@employee.id)
+       render 'bank_info_pdf',layout:false
+  end
+
+  def emp_search_result_pdf
+      @employees=params[:employees]
+      @search=params[:search]
+      render 'emp_search_result_pdf',layout:false
+  end
+
+
+  def edit_personal_profile
+        @employee=Employee.find(params[:format])
+  end
+
+  def edit_address_profile
+        @employee=Employee.find(params[:format])
+  end
+
+
+  def edit_contact_profile
+        @employee=Employee.find(params[:format])
+  end
+
+  def edit_bank_info
+      @employee=Employee.find(params[:format])
+      @bank_info=@employee.employee_bank_details.all
+  end
+
+  def update_bank_details
+    @employee=Employee.find(params[:format])
+     params[:banks].each_pair do |k,v|
+        @bank_info=EmployeeBankDetail.find_by_id_and_employee_id(k,@employee.id) 
+        @bank_info.update(bank_info:v[:bank_info]) 
+    end
+    redirect_to employees_profile_path(@employee)
+  end
 
   private
   def employee_params
-    params.require(:employee).permit(:employee_category_id,
-                      :reporting_manager_id,
-                          :employee_number,
-                          :joining_date,
-                          :first_name,
-                        :middle_name,
-                        :last_name,
-                        :gender,
-                        :job_title,
-                        :employee_position_id,
-                        :employee_department_id,
-                          :employee_grade_id,
-                        :qualification,
-                        :experience_detail,
-                        :experience_year,
-                        :experience_month,
-                          :status,
-                        :date_of_birth,
-                          :marital_status,
-                        :father_name,
-                        :mother_name,
-                          :blood_group,
-                        :country_id,
-                          :email,
-                          :photo_data,:home_address_line1,
-                          :home_address_line2,:home_city,:home_state,
-                          :home_country_id,
-                      :home_pin_code,
-                      :office_address_line1,:office_address_line2,
-                      :office_city,:office_state,:office_country_id,
-                      :office_pin_code,
-                      :office_phone1,:office_phone2,:mobile_phone,
-                      :home_phone,:fax)
+    params.require(:employee).permit!
+                    
+                     
   end
    
   def category_params
